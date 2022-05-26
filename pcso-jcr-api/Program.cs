@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,10 +8,16 @@ builder.Services.AddDbContext<TodoDb>(opt => opt.UseInMemoryDatabase("TodoList")
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSignalR();
+
+builder.Services.AddCors();
+
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
+
+app.MapHub<Chat>(nameof(Chat));
 
 app.MapGet("/", () => "Hello World!");
 
@@ -28,6 +35,7 @@ app.MapGet("/todoitems/{id}", async (int id, TodoDb db) =>
 
 app.MapPost("/todoitems", async (Todo todo, TodoDb db) =>
 {
+    todo.Created = DateTime.Now;
     db.Todos.Add(todo);
     await db.SaveChangesAsync();
 
@@ -60,7 +68,29 @@ app.MapDelete("/todoitems/{id}", async (int id, TodoDb db) =>
     return Results.NotFound();
 });
 
+app.MapDelete("/todoitems", async (TodoDb db) =>
+{
+    await db.Database.EnsureDeletedAsync();
+    await db.SaveChangesAsync();
+    return Results.Ok(null);
+});
+
+app.UseCors(builder => builder
+         .AllowAnyHeader()
+         .AllowAnyMethod()
+         .SetIsOriginAllowed((host) => true)
+         .AllowCredentials()
+     );
+
 app.Run();
+
+public class Chat : Hub
+{
+    public void Broadcast(string name, string message)
+    {
+        Clients.All.SendAsync("Receive", name, message);
+    }
+}
 
 class Todo
 {
