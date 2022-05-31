@@ -57,6 +57,8 @@ builder.Services.AddDbContext<DataContext>(options =>
 //.GetSection("AppSettings")["Site"]
 
 // Enable CORS
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myAllowSpecificOrigins,
