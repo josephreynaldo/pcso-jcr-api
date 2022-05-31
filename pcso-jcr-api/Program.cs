@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens;
 
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -59,37 +60,54 @@ builder.Services.AddDbContext<DataContext>(options =>
 // Enable CORS
 
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: myAllowSpecificOrigins,
-        builder =>
-        {
-            builder.WithOrigins("https://pcso-jcr-backend.azurewebsites.net"
-                )
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-        });
-});
+//builder.Services.AddCors(options =>
+//{
+    //options.AddPolicy(name: myAllowSpecificOrigins,
+      //  builder =>
+        //{
+          //  builder.WithOrigins( )
+            //.AllowAnyMethod()
+            //.AllowAnyHeader();
+        //});
+//});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
+//    app.UseSwagger();
+//app.UseSwaggerUI();
+//}
+
+//app.UseHttpsRedirection();
+
+//if (app.Environment.IsDevelopment())
+//{
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 //}
+//else
+//{
+    // For mobile apps, allow http traffic.
+    //app.UseHttpsRedirection();
+//}
 
-app.UseHttpsRedirection();
 
-app.UseCors(myAllowSpecificOrigins);
+//app.UseCors(myAllowSpecificOrigins);
 
 
 app.UseRouting();
 
 //app.UseAuthentication();
-//app.UseAuthorization();
+app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
 app.Run();
