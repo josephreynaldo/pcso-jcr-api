@@ -1,110 +1,94 @@
-using Microsoft.AspNetCore.SignalR;
+using pcso_jcr_api.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Text;
+using System.IdentityModel.Tokens;
+
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<TodoDb>(opt => opt.UseInMemoryDatabase("TodoList"));
-//builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+
+// Add services to the container.
+//dotnet tool install --global dotnet-svcutil
+//https://www.azuredevopslabs.com/labs/azuredevops/git/
+//https://www.youtube.com/watch?v=qtYIpZX-s-k
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSignalR();
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
-builder.Services.AddCors();
+
+
+//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,
+//options => builder.Configuration.Bind("JwtSettings", options))
+//.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
+//  options => builder.Configuration.Bind("CookieSettings", options));
+
+//uthentication(options =>
+//{
+    //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//}).AddJwtBearer(o =>
+//{
+    //var key = Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JWT").GetSection("Key").Value);
+    //var ValidIssuer = builder.Configuration.GetSection("JWT").GetSection("Issuer").Value;
+    //var ValidAudience = builder.Configuration.GetSection("JWT").GetSection("Audience").Value;
+    //var IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key);
+    //o.SaveToken = true;
+    //o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    //{
+        //ValidateIssuerSigningKey = true,
+        //ValidIssuer = ValidIssuer,
+        //ValidAudience = ValidAudience,
+        //IssuerSigningKey = IssuerSigningKey
+    //};
+//}
+//);
+
+//.GetSection("AppSettings")["Site"]
+
+// Enable CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: myAllowSpecificOrigins,
+        builder =>
+        {
+            builder.WithOrigins("http://10.32.7.142", "http://localhost:4200", "http://localhost:57155", "http://localhost:58157", "http://localhost:7157",
+                "http://localhost:44351"
+                )
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
+});
 
 var app = builder.Build();
-app.UseSwagger();
-app.UseSwaggerUI();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseHttpsRedirection();
 
-app.MapHub<Chat>(nameof(Chat));
+app.UseCors(myAllowSpecificOrigins);
 
-app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/todoitems", async (TodoDb db) =>
-    await db.Todos.ToListAsync());
+app.UseRouting();
 
-app.MapGet("/todoitems/complete", async (TodoDb db) =>
-    await db.Todos.Where(t => t.IsComplete).ToListAsync());
+//app.UseAuthentication();
+//app.UseAuthorization();
 
-app.MapGet("/todoitems/{id}", async (int id, TodoDb db) =>
-    await db.Todos.FindAsync(id)
-        is Todo todo
-            ? Results.Ok(todo)
-            : Results.NotFound());
-
-app.MapPost("/todoitems", async (Todo todo, TodoDb db) =>
-{
-    todo.Created = DateTime.Now;
-    db.Todos.Add(todo);
-    await db.SaveChangesAsync();
-
-    return Results.Created($"/todoitems/{todo.Id}", todo);
-});
-
-app.MapPut("/todoitems/{id}", async (int id, Todo inputTodo, TodoDb db) =>
-{
-    var todo = await db.Todos.FindAsync(id);
-
-    if (todo is null) return Results.NotFound();
-
-    todo.Name = inputTodo.Name;
-    todo.IsComplete = inputTodo.IsComplete;
-
-    await db.SaveChangesAsync();
-
-    return Results.NoContent();
-});
-
-app.MapDelete("/todoitems/{id}", async (int id, TodoDb db) =>
-{
-    if (await db.Todos.FindAsync(id) is Todo todo)
-    {
-        db.Todos.Remove(todo);
-        await db.SaveChangesAsync();
-        return Results.Ok(todo);
-    }
-
-    return Results.NotFound();
-});
-
-app.MapDelete("/todoitems", async (TodoDb db) =>
-{
-    await db.Database.EnsureDeletedAsync();
-    await db.SaveChangesAsync();
-    return Results.Ok(null);
-});
-
-app.UseCors(builder => builder
-         .AllowAnyHeader()
-         .AllowAnyMethod()
-         .SetIsOriginAllowed((host) => true)
-         .AllowCredentials()
-     );
+app.MapControllers();
 
 app.Run();
-
-public class Chat : Hub
-{
-    public void Broadcast(string name, string message)
-    {
-        Clients.All.SendAsync("Receive", name, message);
-    }
-}
-
-class Todo
-{
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public bool IsComplete { get; set; }
-    public string? Message { get; set; }
-    public DateTime? Created { get; set; }
-}
-
-class TodoDb : DbContext
-{
-    public TodoDb(DbContextOptions<TodoDb> options)
-        : base(options) { }
-
-    public DbSet<Todo> Todos => Set<Todo>();
-}
