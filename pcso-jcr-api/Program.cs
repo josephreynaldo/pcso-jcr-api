@@ -64,8 +64,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: myAllowSpecificOrigins,
         builder =>
         {
-            builder.WithOrigins("http://10.32.7.142", "http://localhost:4200", "http://localhost:57155", "http://localhost:58157", "http://localhost:7157",
-                "http://localhost:44351", "https://pcso-jcr-backend.azurewebsites.net/"
+            builder.WithOrigins("https://pcso-jcr-backend.azurewebsites.net"
                 )
             .AllowAnyMethod()
             .AllowAnyHeader();
@@ -75,11 +74,11 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
 
 app.UseHttpsRedirection();
 
