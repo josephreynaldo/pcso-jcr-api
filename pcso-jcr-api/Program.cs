@@ -63,7 +63,7 @@ builder.Services.AddCors(options =>
         builder =>
         {
             builder.WithOrigins("http://10.32.7.142", "http://localhost:4200", "http://localhost:57155", "http://localhost:58157", "http://localhost:7157",
-                "http://localhost:44351"
+                "http://localhost:44351", "https://pcso-jcr-backend.azurewebsites.net/"
                 )
             .AllowAnyMethod()
             .AllowAnyHeader();
