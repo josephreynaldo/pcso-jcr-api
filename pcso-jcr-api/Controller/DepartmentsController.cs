@@ -4,54 +4,54 @@ using pcso_jcr_api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 //created by : Jeremiah R. Peralta
-//2022-04-07
+//2022-01-06
 
 namespace DASHBOARD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SectorsController : ControllerBase
+    public class DepartmentsController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public SectorsController(DataContext context)
+        public DepartmentsController(DataContext context)
         {
             _context = context;
         }
 
-        // GET: api/Sectors
+        // GET: api/Departments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Sector>>> GetSectors()
+        public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
         {
-            return await _context.Sectors.ToListAsync();
+            return await _context.Departments.ToListAsync();
         }
 
-        // GET: api/Sectors/5
+        // GET: api/Departments/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Sector>> GetSector(int id)
+        public async Task<ActionResult<Department>> GetDepartment(int id)
         {
-            var sectorList = await _context.Sectors.FindAsync(id);
+            var departmentList = await _context.Departments.FindAsync(id);
 
-            if (sectorList == null)
+            if (departmentList == null)
             {
                 return NotFound();
             }
 
-            return sectorList;
+            return departmentList;
         }
 
-        // PUT: api/Sectors/5
+        // PUT: api/Departments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSectors(int id, Sector sectors)
+        public async Task<IActionResult> PutDepartments(int id, Department departments)
         {
             //  if (id != productList.id)
             //  {
             //      return BadRequest();
             //  }
-            sectors.id = id;
+            departments.id = id;
 
-            _context.Entry(sectors).State = EntityState.Modified;
+            _context.Entry(departments).State = EntityState.Modified;
 
             try
             {
@@ -59,7 +59,7 @@ namespace DASHBOARD.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!sectorListExists(id))
+                if (!departmentListExists(id))
                 {
                     return NotFound();
                 }
@@ -72,36 +72,36 @@ namespace DASHBOARD.Controllers
             return NoContent();
         }
 
-        // POST: api/Sectors
+        // POST: api/Departments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Sector>> PostSector(Sector sector)
+        public async Task<ActionResult<Department>> PostDepartment(Department department)
         {
-            _context.Sectors.Add(sector);
+            _context.Departments.Add(department);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetSector", new { id = sector.id }, sector);
+            return CreatedAtAction("GetDepartment", new { id = department.id }, department);
         }
 
-        // DELETE: api/Sectors/5
+        // DELETE: api/Departments/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSector(int id)
+        public async Task<IActionResult> DeleteDepartment(int id)
         {
-            var sectorList = await _context.Sectors.FindAsync(id);
-            if (sectorList == null)
+            var departmentList = await _context.Departments.FindAsync(id);
+            if (departmentList == null)
             {
                 return NotFound();
             }
 
-            _context.Sectors.Remove(sectorList);
+            _context.Departments.Remove(departmentList);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool sectorListExists(int id)
+        private bool departmentListExists(int id)
         {
-            return _context.Sectors.Any(e => e.id == id);
+            return _context.Departments.Any(e => e.id == id);
         }
     }
 }

@@ -9,6 +9,8 @@ namespace pcso_jcr_api.Data
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
         public DbSet<Sector> Sectors { get; set; }
+
+        public DbSet<Department> Departments { get; set; }
     }
 
 }
