@@ -11,6 +11,8 @@ namespace pcso_jcr_api.Data
         public DbSet<Sector> Sectors { get; set; }
 
         public DbSet<Department> Departments { get; set; }
+
+        public DbSet<Project> Projects { get; set; }
     }
 
 }
