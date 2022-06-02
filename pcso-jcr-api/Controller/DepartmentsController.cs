@@ -39,6 +39,13 @@ namespace DASHBOARD.Controllers
 
             return departmentList;
         }
+        //get departmentid
+
+        [HttpGet("Department/{sectorID}")]
+        public async Task<ActionResult<IEnumerable<Department>>> GetDepartmentsBysectorID(int sectorID)
+        {
+            return await _context.Departments.Where(s => s.sectorID == sectorID).ToListAsync();
+        }
 
         // PUT: api/Departments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

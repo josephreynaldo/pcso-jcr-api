@@ -40,6 +40,21 @@ namespace DASHBOARD.Controllers
             return projectList;
         }
 
+        //get sectorid
+
+        [HttpGet("Project/{sectorID}")]
+        public async Task<ActionResult<IEnumerable<Project>>> GetDepartmentsBysectorID(int sectorID)
+        {
+            return await _context.Projects.Where(s => s.sectorID == sectorID).ToListAsync();
+        }
+        //get departmentid
+
+        [HttpGet("Projects/{departmentID}")]
+        public async Task<ActionResult<IEnumerable<Project>>> GetDepartmentsBydepartmentID(int departmentID)
+        {
+            return await _context.Projects.Where(s => s.departmentID == departmentID).ToListAsync();
+        }
+
         // PUT: api/Projects/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
