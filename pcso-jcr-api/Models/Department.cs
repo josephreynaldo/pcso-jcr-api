@@ -8,5 +8,11 @@
         
         public int sectorID {  get; set; }
 
+        public int numberOfProject { get; set; }
+
+        public string? percentageProj { get; set; }
+
+        public string remarks { get; set; }
+
     }
 }
